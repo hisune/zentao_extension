@@ -81,7 +81,7 @@ function insertGames(type)
 {
     if(!getIframe()) return;
     requestJSON('http://172.16.5.205/zentao_stat/assets/zentao.json').then(function(games){
-        if(type === 'edit'){
+        if(type === 'div'){
             let gamesFromDetail = getGamesFromDetail();
             let details = document.getElementsByClassName('detail');
             console.log(gamesFromDetail);
@@ -173,6 +173,8 @@ function executionCreate()
 function autoSelectMyself(selectId, chosenId, name)
 {
     let pmSelectElement = document.getElementById(selectId);
+    if(!pmSelectElement) return;
+
     let pmOptionElements = pmSelectElement.options;
     for (let i = 0; i < pmOptionElements.length; i++) {
         if(pmOptionElements[i].innerText.indexOf(name) > -1){
@@ -183,10 +185,13 @@ function autoSelectMyself(selectId, chosenId, name)
 }
 
 if (window.location.href.indexOf('/zentao/task-edit-') > 0) {
-    insertGames('edit');
+    insertGames('div');
 }else if(window.location.href.indexOf('/zentao/task-create-') > 0){
-    insertGames('create');
+    insertGames('table');
 }else if(window.location.href.indexOf('/zentao/execution-create') > 0){
     executionCreate();
+    insertGames('table')
+}else if(window.location.href.indexOf('/zentao/execution-edit') > 0){
+    insertGames('table')
 }
 
