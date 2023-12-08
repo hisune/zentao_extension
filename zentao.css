@@ -1,12 +1,17 @@
 .game-name-item{
-    margin: 2px;
-    min-width: 165px;
+    padding: 0 2px;
+    width: 165px;
     display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.game-name-item input, .game-name-item label{
     cursor: pointer;
 }
 #game-select-reverse, #game-select-all{
     margin: 0 2px;
 }
 .game-th{
-    text-align: left !important;
+    text-align: left!important;
 }
