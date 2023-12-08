@@ -44,12 +44,15 @@ function insertGamesToDetail()
     let regex = /(<p>)*--!([\s\S]*?)!--(<\/p>)*/g;
     let matches = targetElement.innerHTML.match(regex);
     let content = targetElement.innerHTML;
+    let gamesString = gamesArray.length > 0 ? `<p>--!${gamesArray.join(',')}!--</p>` : '';
     if(matches){
-        content = content.replace(matches[0], `<p>--!${gamesArray.join(',')}!--</p>`);
+        content = content.replace(matches[0], gamesString);
         targetElement.innerHTML = content;
     }else{
-        targetElement.innerHTML = content + `<p>--!${gamesArray.join(',')}!--</p>`;
+        targetElement.innerHTML = content + gamesString;
     }
+    document.getElementsByClassName('kindeditor-ph')[0].innerText = '';
+    document.getElementById('desc').value = targetElement.innerHTML;
 }
 
 function getGamesFromDetail()
@@ -95,6 +98,9 @@ function insertGames(type)
                 addGameEvent();
             }
         }else{
+            // 自动选择指派给
+            autoSelectMyself('assignedTo', 'assignedTo_chosen', getMyselfName())
+            // 添加研发项目
             let form = document.getElementById('dataform');
             if(!form) return;
             let trs = form.querySelectorAll('tr');
@@ -143,15 +149,17 @@ function requestJSON(url, data)
         }
     });
 }
+function getMyselfName()
+{
+    let nameElement = document.getElementsByClassName('user-profile-name');
+    if(!nameElement) return;
+
+    return nameElement[0].innerText;
+}
 function executionCreate()
 {
     let selectElement = document.getElementById('teamMembers');
     if(!selectElement) return;
-
-    let nameElement = document.getElementsByClassName('user-profile-name');
-    if(!nameElement) return;
-
-    let name = nameElement[0].innerText;
 
     // 全选团队
     let optionElements = selectElement.options;
@@ -159,13 +167,17 @@ function executionCreate()
         optionElements[i].selected = true;
     }
     // 自动选择迭代负责人
-    let pmSelectElement = document.getElementById('PM');
+    autoSelectMyself('PM', 'PM_chosen', getMyselfName())
+}
+
+function autoSelectMyself(selectId, chosenId, name)
+{
+    let pmSelectElement = document.getElementById(selectId);
     let pmOptionElements = pmSelectElement.options;
     for (let i = 0; i < pmOptionElements.length; i++) {
-        console.log(pmOptionElements[i].innerText);
         if(pmOptionElements[i].innerText.indexOf(name) > -1){
             pmOptionElements[i].selected = true;
-            document.getElementById('PM_chosen').querySelector('span').innerText = name;
+            document.getElementById(chosenId).querySelector('span').innerText = name;
         }
     }
 }
