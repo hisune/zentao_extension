@@ -106,8 +106,10 @@ function insertGames(type)
             let trs = form.querySelectorAll('tr');
             if(trs && trs[8]){
                 let gamesHtml = '<tr><th>研发项目<button id="game-select-all" type="button">全选</button><button id="game-select-reverse" type="button">反选</button></th><th colspan="3" class="game-th">';
+                let gamesFromDetail = getGamesFromDetail();
                 for(let i in games){
-                    gamesHtml += `<div class="game-name-item"><input class="game-checkbox" type="checkbox" id="game-name-${i}" value="${games[i]}"/>` +
+                    let checked = gamesFromDetail.indexOf(games[i]) > -1? 'checked' : '';
+                    gamesHtml += `<div class="game-name-item"><input class="game-checkbox" ${checked} type="checkbox" id="game-name-${i}" value="${games[i]}"/>` +
                         `<label for="game-name-${i}">${games[i]}</label></div>`;
                 }
                 gamesHtml += '</th></tr>';
