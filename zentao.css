@@ -1,0 +1,12 @@
+.game-name-item{
+    margin: 2px;
+    min-width: 165px;
+    display: inline-block;
+    cursor: pointer;
+}
+#game-select-reverse, #game-select-all{
+    margin: 0 2px;
+}
+.game-th{
+    text-align: left !important;
+}
