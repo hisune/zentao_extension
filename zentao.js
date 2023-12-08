@@ -77,25 +77,35 @@ function addGameEvent()
     document.getElementById('game-select-reverse').addEventListener('click', () => checkAllGames(true));
     addEventByClass('game-checkbox', () => insertGamesToDetail(), 'change');
 }
-function insertGames(type)
+function insertGamesHtml(dom, games, type)
+{
+    let wrapperBegin = '<tr><th>', wrapperMiddle = '</th><th colspan="3" class="game-th">', wrapperEnd = '</th></tr>';
+    if(type === 'div'){
+        wrapperBegin = '<div class="detail"><div class="detail-title">';
+        wrapperMiddle = '</div><div class="detail-content">';
+        wrapperEnd = '</div></div>';
+    }
+    let gamesHtml = wrapperBegin + '研发项目<button id="game-select-all" type="button">全选</button><button id="game-select-reverse" type="button">反选</button>' + wrapperMiddle;
+    let gamesFromDetail = getGamesFromDetail();
+    for(let i in games){
+        let checked = gamesFromDetail.indexOf(games[i]) > -1? 'checked' : '';
+        gamesHtml += `<div class="game-name-item"><input class="game-checkbox" ${checked} type="checkbox" id="game-name-${i}" value="${games[i]}"/>` +
+            `<label for="game-name-${i}">${games[i]}</label></div>`;
+    }
+    gamesHtml += wrapperEnd;
+    dom.insertAdjacentHTML('afterend', gamesHtml);
+    addGameEvent();
+}
+function insertGames(type, callback)
 {
     if(!getIframe()) return;
+    if(document.getElementById('game-select-all')) return;
+
     requestJSON('http://172.16.5.205/zentao_stat/assets/zentao.json').then(function(games){
         if(type === 'div'){
-            let gamesFromDetail = getGamesFromDetail();
             let details = document.getElementsByClassName('detail');
-            console.log(gamesFromDetail);
             if(details && details[0]){
-                let gamesHtml = '<div class="detail"><div class="detail-title">研发项目<button id="game-select-all" type="button">全选</button><button id="game-select-reverse" type="button">反选</button></div><div class="detail-content">';
-                for(let i in games){
-                    let checked = gamesFromDetail.indexOf(games[i]) > -1? 'checked' : '';
-                    gamesHtml += `<div class="game-name-item"><input class="game-checkbox" ${checked} type="checkbox" id="game-name-${i}" value="${games[i]}"/>` +
-                        `<label for="game-name-${i}">${games[i]}</label></div>`;
-                }
-                gamesHtml += '</div></div>';
-                details[0].insertAdjacentHTML('afterend', gamesHtml);
-                // 监听事件
-                addGameEvent();
+                insertGamesHtml(details[0], games, 'div');
             }
         }else{
             // 自动选择指派给
@@ -105,19 +115,10 @@ function insertGames(type)
             if(!form) return;
             let trs = form.querySelectorAll('tr');
             if(trs && trs[8]){
-                let gamesHtml = '<tr><th>研发项目<button id="game-select-all" type="button">全选</button><button id="game-select-reverse" type="button">反选</button></th><th colspan="3" class="game-th">';
-                let gamesFromDetail = getGamesFromDetail();
-                for(let i in games){
-                    let checked = gamesFromDetail.indexOf(games[i]) > -1? 'checked' : '';
-                    gamesHtml += `<div class="game-name-item"><input class="game-checkbox" ${checked} type="checkbox" id="game-name-${i}" value="${games[i]}"/>` +
-                        `<label for="game-name-${i}">${games[i]}</label></div>`;
-                }
-                gamesHtml += '</th></tr>';
-                trs[8].insertAdjacentHTML('afterend', gamesHtml);
-                // 监听事件
-                addGameEvent();
+                insertGamesHtml(trs[8], games, 'table');
             }
         }
+        if(callback) callback();
     });
 }
 function requestJSON(url, data)
@@ -163,6 +164,19 @@ function executionCreate()
     let selectElement = document.getElementById('teamMembers');
     if(!selectElement) return;
 
+    console.log('execute create');
+
+    // 自动选择计划起止日期为7填
+    document.getElementById('delta7').click();
+
+    // 自动选择项目
+    let projectElement = document.getElementById('project');
+    if(!projectElement.options[1].selected){
+        projectElement.options[1].selected = true;
+        let changeEvent = new Event('change');
+        projectElement.dispatchEvent(changeEvent);
+    }
+
     // 全选团队
     let optionElements = selectElement.options;
     for (let i = 0; i < optionElements.length; i++) {
@@ -171,7 +185,6 @@ function executionCreate()
     // 自动选择迭代负责人
     autoSelectMyself('PM', 'PM_chosen', getMyselfName())
 }
-
 function autoSelectMyself(selectId, chosenId, name)
 {
     let pmSelectElement = document.getElementById(selectId);
@@ -191,8 +204,7 @@ if (window.location.href.indexOf('/zentao/task-edit-') > 0) {
 }else if(window.location.href.indexOf('/zentao/task-create-') > 0){
     insertGames('table');
 }else if(window.location.href.indexOf('/zentao/execution-create') > 0){
-    executionCreate();
-    insertGames('table')
+    insertGames('table', () => executionCreate())
 }else if(window.location.href.indexOf('/zentao/execution-edit') > 0){
     insertGames('table')
 }
