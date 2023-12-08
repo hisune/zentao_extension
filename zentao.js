@@ -85,7 +85,7 @@ function insertGamesHtml(dom, games, type)
         wrapperMiddle = '</div><div class="detail-content">';
         wrapperEnd = '</div></div>';
     }
-    let gamesHtml = wrapperBegin + '研发项目<button id="game-select-all" type="button">全选</button><button id="game-select-reverse" type="button">反选</button>' + wrapperMiddle;
+    let gamesHtml = wrapperBegin + '<span style="font-weight: bold;color: red;">研发项目</span><button id="game-select-all" type="button">全选</button><button id="game-select-reverse" type="button">反选</button>' + wrapperMiddle;
     let gamesFromDetail = getGamesFromDetail();
     for(let i in games){
         let checked = gamesFromDetail.indexOf(games[i]) > -1? 'checked' : '';
