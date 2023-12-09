@@ -183,7 +183,7 @@ function executionCreate()
         optionElements[i].selected = true;
     }
     // 自动选择迭代负责人
-    autoSelectMyself('PM', 'PM_chosen', getMyselfName())
+    autoSelectMyself('PM', 'PM_chosen')
 
     // 创建提醒
     addSteps([
@@ -197,7 +197,7 @@ function taskCreate()
 {
     console.log('task create');
     // 自动选择指派给
-    autoSelectMyself('assignedTo', 'assignedTo_chosen', getMyselfName())
+    autoSelectMyself('assignedTo', 'assignedTo_chosen')
 
     // 创建提醒
     addSteps([
@@ -217,10 +217,11 @@ function addSteps(steps)
     }
 }
 
-function autoSelectMyself(selectId, chosenId, name)
+function autoSelectMyself(selectId, chosenId)
 {
     let pmSelectElement = document.getElementById(selectId);
     if(!pmSelectElement) return;
+    let name = getMyselfName();
 
     let pmOptionElements = pmSelectElement.options;
     for (let i = 0; i < pmOptionElements.length; i++) {
