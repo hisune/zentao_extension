@@ -85,7 +85,9 @@ function insertGamesHtml(dom, games, type)
         wrapperMiddle = '</div><div class="detail-content">';
         wrapperEnd = '</div></div>';
     }
-    let gamesHtml = wrapperBegin + '<span style="font-weight: bold;color: red;">研发项目</span><button id="game-select-all" type="button">全选</button><button id="game-select-reverse" type="button">反选</button>' + wrapperMiddle;
+    let gamesHtml = wrapperBegin + '所属游戏<button id="game-select-all" type="button">全选</button><button id="game-select-reverse" type="button">反选</button>'
+        + wrapperMiddle
+        + `<div style="font-weight: normal;background: aliceblue;padding: 4px;border: antiquewhite 1px solid;">说明：1. 迭代、父任务、子任务均可设置；2. <b>统计优先级</b>：子任务 > 父任务 > 迭代；3. <b>迭代下所有任务游戏相同</b> => 设置迭代的游戏即可，<b>迭代下的任务游戏不同</b> => 为每个任务单独设置游戏</div>`;
     let gamesFromDetail = getGamesFromDetail();
     for(let i in games){
         let checked = gamesFromDetail.indexOf(games[i]) > -1? 'checked' : '';
@@ -102,15 +104,13 @@ function insertGames(type, callback)
     if(document.getElementById('game-select-all')) return;
 
     requestJSON('http://172.16.5.205/zentao_stat/assets/zentao.json').then(function(games){
+        if(document.getElementById('game-select-all')) return;
         if(type === 'div'){
             let details = document.getElementsByClassName('detail');
             if(details && details[0]){
                 insertGamesHtml(details[0], games, 'div');
             }
         }else{
-            // 自动选择指派给
-            autoSelectMyself('assignedTo', 'assignedTo_chosen', getMyselfName())
-            // 添加研发项目
             let form = document.getElementById('dataform');
             if(!form) return;
             let trs = form.querySelectorAll('tr');
@@ -184,7 +184,39 @@ function executionCreate()
     }
     // 自动选择迭代负责人
     autoSelectMyself('PM', 'PM_chosen', getMyselfName())
+
+    // 创建提醒
+    addSteps([
+        [document.getElementById('dataform').querySelectorAll('tr')[2].querySelector('th')],
+        [document.getElementById('dataform').querySelectorAll('tr')[3].querySelector('th'), '可修改'],
+        [document.getElementById('dataform').querySelectorAll('tr')[9].querySelector('th')],
+    ]);
 }
+
+function taskCreate()
+{
+    console.log('task create');
+    // 自动选择指派给
+    autoSelectMyself('assignedTo', 'assignedTo_chosen', getMyselfName())
+
+    // 创建提醒
+    addSteps([
+        [document.getElementById('dataform').querySelectorAll('tr')[1].querySelector('th')],
+        [document.getElementById('dataform').querySelectorAll('tr')[2].querySelector('th')],
+        [document.getElementById('dataform').querySelectorAll('tr')[8].querySelector('th')],
+        [document.getElementById('dataform').querySelectorAll('tr')[9].querySelector('th'), '非必需'],
+    ]);
+}
+
+function addSteps(steps)
+{
+    for(let i in steps){
+        let step = parseInt(i) + 1;
+        let tips = steps[i][1] ? '(' + steps[i][1] + ')' : '';
+        steps[i][0].insertAdjacentHTML('afterbegin', `<span style="color: red; font-weight: bold">第${step}步${tips}</span><br>`);
+    }
+}
+
 function autoSelectMyself(selectId, chosenId, name)
 {
     let pmSelectElement = document.getElementById(selectId);
@@ -194,6 +226,7 @@ function autoSelectMyself(selectId, chosenId, name)
     for (let i = 0; i < pmOptionElements.length; i++) {
         if(pmOptionElements[i].innerText.indexOf(name) > -1){
             pmOptionElements[i].selected = true;
+            console.log('auto select ' + name);
             document.getElementById(chosenId).querySelector('span').innerText = name;
         }
     }
@@ -202,7 +235,7 @@ function autoSelectMyself(selectId, chosenId, name)
 if (window.location.href.indexOf('/zentao/task-edit-') > 0) {
     insertGames('div');
 }else if(window.location.href.indexOf('/zentao/task-create-') > 0){
-    insertGames('table');
+    insertGames('table', () => taskCreate());
 }else if(window.location.href.indexOf('/zentao/execution-create') > 0){
     insertGames('table', () => executionCreate())
 }else if(window.location.href.indexOf('/zentao/execution-edit') > 0){
