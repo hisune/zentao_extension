@@ -204,7 +204,7 @@ function taskCreate()
         [document.getElementById('dataform').querySelectorAll('tr')[1].querySelector('th')],
         [document.getElementById('dataform').querySelectorAll('tr')[2].querySelector('th')],
         [document.getElementById('dataform').querySelectorAll('tr')[8].querySelector('th')],
-        [document.getElementById('dataform').querySelectorAll('tr')[9].querySelector('th'), '非必需'],
+        [document.getElementById('dataform').querySelectorAll('tr')[9].querySelector('th')],
     ]);
 }
 
