@@ -1,7 +1,10 @@
-function checkAllGames(reverse = true)
+function checkAllGames(reverse = true, index)
 {
     let checkboxes = document.querySelectorAll('.game-checkbox');
     checkboxes.forEach(function(checkbox) {
+        if(checkbox.dataset.index !== index){
+            return;
+        }
         checkbox.checked = reverse ? !checkbox.checked: true;
         let changeEvent = new Event('change');
         // 触发 change 事件
@@ -73,8 +76,16 @@ function getGamesFromDetail()
 }
 function addGameEvent()
 {
-    document.getElementById('game-select-all').addEventListener('click', () => checkAllGames(false));
-    document.getElementById('game-select-reverse').addEventListener('click', () => checkAllGames(true));
+    document.querySelectorAll('.game-select-all').forEach(function(item){
+        item.addEventListener('click', function(){
+            checkAllGames(false, this.dataset.index);
+        })
+    });
+    document.querySelectorAll('.game-select-reverse').forEach(function(item){
+        item.addEventListener('click', function(){
+            checkAllGames(true, this.dataset.index);
+        });
+    });
     addEventByClass('game-checkbox', () => insertGamesToDetail(), 'change');
 }
 function insertGamesHtml(dom, games, type)
@@ -85,14 +96,17 @@ function insertGamesHtml(dom, games, type)
         wrapperMiddle = '</div><div class="detail-content">';
         wrapperEnd = '</div></div>';
     }
-    let gamesHtml = wrapperBegin + '所属游戏<button id="game-select-all" type="button">全选</button><button id="game-select-reverse" type="button">反选</button>'
+    let gamesHtml = wrapperBegin + '所属游戏'
         + wrapperMiddle
         + `<div style="font-weight: normal;background: aliceblue;padding: 4px;border: antiquewhite 1px solid;">说明：1. 迭代、父任务、子任务均可设置；2. <b>统计优先级</b>：子任务 > 父任务 > 迭代；3. <b>迭代下所有任务游戏相同</b> => 设置迭代的游戏即可，<b>迭代下的任务游戏不同</b> => 为每个任务单独设置游戏</div>`;
     let gamesFromDetail = getGamesFromDetail();
     for(let i in games){
-        let checked = gamesFromDetail.indexOf(games[i]) > -1? 'checked' : '';
-        gamesHtml += `<div class="game-name-item"><input class="game-checkbox" ${checked} type="checkbox" id="game-name-${i}" value="${games[i]}"/>` +
-            `<label for="game-name-${i}">${games[i]}</label></div>`;
+        gamesHtml += `<div class="game-name">${games[i]['group']}<button class="game-select-all" data-index="${i}" type="button">全选</button><button class="game-select-reverse" data-index="${i}" type="button">反选</button></div>`;
+        for(let j in games[i]['games']){
+            let checked = gamesFromDetail.indexOf(games[i]['games'][j]) > -1? 'checked' : '';
+            gamesHtml += `<div class="game-name-item"><input class="game-checkbox" data-index="${i}" ${checked} type="checkbox" id="game-name-${i}-${j}" value="${games[i]['games'][j]}"/>` +
+                `<label for="game-name-${i}-${j}">${games[i]['games'][j]}</label></div>`;
+        }
     }
     gamesHtml += wrapperEnd;
     dom.insertAdjacentHTML('afterend', gamesHtml);
@@ -103,7 +117,7 @@ function insertGames(type, callback)
     if(!getIframe()) return;
     if(document.getElementById('game-select-all')) return;
 
-    requestJSON('http://172.16.5.205/zentao_stat/assets/zentao.json').then(function(games){
+    requestJSON('http://172.16.5.205/zentao_stat/assets/zentao_games.json').then(function(games){
         if(document.getElementById('game-select-all')) return;
         if(type === 'div'){
             let details = document.getElementsByClassName('detail');
