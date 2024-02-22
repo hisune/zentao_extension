@@ -101,7 +101,7 @@ function insertGamesHtml(dom, games, type)
         + `<div style="font-weight: normal;background: aliceblue;padding: 4px;border: antiquewhite 1px solid;">说明：1. 迭代、父任务、子任务均可设置；2. <b>统计优先级</b>：子任务 > 父任务 > 迭代；3. <b>迭代下所有任务游戏相同</b> => 设置迭代的游戏即可，<b>迭代下的任务游戏不同</b> => 为每个任务单独设置游戏</div>`;
     let gamesFromDetail = getGamesFromDetail();
     for(let i in games){
-        gamesHtml += `<div class="game-name">${games[i]['group']}<button class="game-select-all" data-index="${i}" type="button">全选</button><button class="game-select-reverse" data-index="${i}" type="button">反选</button></div>`;
+        gamesHtml += `<div class="game-name"><b>${games[i]['group']}</b>&nbsp;<button class="game-select-all" data-index="${i}" type="button">全选</button><button class="game-select-reverse" data-index="${i}" type="button">反选</button></div>`;
         for(let j in games[i]['games']){
             let checked = gamesFromDetail.indexOf(games[i]['games'][j]) > -1? 'checked' : '';
             gamesHtml += `<div class="game-name-item"><input class="game-checkbox" data-index="${i}" ${checked} type="checkbox" id="game-name-${i}-${j}" value="${games[i]['games'][j]}"/>` +
